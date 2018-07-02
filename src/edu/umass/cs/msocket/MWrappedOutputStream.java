@@ -48,7 +48,7 @@ public class MWrappedOutputStream extends OutputStream
   public static final int      WRITE_CHUNK_SIZE 	= 1000;
   
   private ConnectionInfo cinfo            			= null;
-  private MultipathPolicy writePolicy				= MultipathPolicy.MULTIPATH_POLICY_ROUNDROBIN;
+  private MultipathPolicy writePolicy				= MultipathPolicy.MULTIPATH_POLICY_FULL_DUP;
 
   /**
    * @param out
