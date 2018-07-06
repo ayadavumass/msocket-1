@@ -85,7 +85,6 @@ public class ControlMessage
     buf.putInt(type);
     buf.putLong(flowID);
     buf.putInt(port);
-    // aditya
     buf.putInt(UDPPort);
     buf.put(iaddr != null ? iaddr.getAddress() : (new byte[ControlMessage.INET_ADDR_SIZE]));
     buf.flip();

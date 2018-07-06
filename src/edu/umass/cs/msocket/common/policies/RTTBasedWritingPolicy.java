@@ -68,11 +68,11 @@ public class RTTBasedWritingPolicy extends MultipathWritingPolicy
       // reads input stream for ACKs an stores data in input buffer
       try
       {
-        cinfo.multiSocketRead();
+    	  cinfo.multiSocketRead();
       }
       catch (IOException ex)
       {
-        ex.printStackTrace();
+    	  ex.printStackTrace();
       }
 
       SocketInfo Obj = getNextSocketToWrite(); 				// randomly

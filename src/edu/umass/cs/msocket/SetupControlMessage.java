@@ -42,223 +42,138 @@ import edu.umass.cs.msocket.logger.MSocketLogger;
  */
 public class SetupControlMessage
 {
-  // client sends these
-  public static final int  NEW_CON_MESG         = 1;                  // mainly
-                                                                          // negotiation
-                                                                          // of
-                                                                          // number
-                                                                          // of
-                                                                          // socekts
-                                                                          // in
-                                                                          // multipath,
-                                                                          // which
-                                                                          // is
-                                                                          // currently
-                                                                          // not
-                                                                          // here
-                                                                          // much
-  public static final int  ADD_SOCKET           = 2;                     // Add
-                                                                          // one
-                                                                          // more
-                                                                          // socket
-                                                                          // to
-                                                                          // this
-                                                                          // flow,
-                                                                          // each
-                                                                          // socket
-                                                                          // is
-                                                                          // identfied
-                                                                          // by
-                                                                          // a
-                                                                          // socket
-                                                                          // id
-                                                                          // same
-                                                                          // at
-                                                                          // both
-                                                                          // client
-                                                                          // and
-                                                                          // server
-  public static final int  MIGRATE_SOCKET       = 3;                     // migrates
-                                                                          // socket
-                                                                          // with
-                                                                          // mentioned
-                                                                          // flowID,
-                                                                          // replaces
-                                                                          // old
-                                                                          // socket
-                                                                          // in
-                                                                          // MSocket
-                                                                          // with
-                                                                          // newly
-                                                                          // accepted
-                                                                          // socket
+	// CLIENT SENDS THESE.
+	
+	// Mainly negotiation of number of sockets in multipath, which is currently not here much
+	public static final int  NEW_CON_MESG         = 1;
+	
+	
+	// Adds one more socket to this flow, each socket is identified by a socket id same at
+    // both client and server
+	public static final int  ADD_SOCKET           = 2;                     
+                                                                          
+  
+    // Migrates socket with mentioned flowID, replaces old socket in MSocket 
+	// with newly accepted socket.
+	public static final int  MIGRATE_SOCKET       = 3;                     
+ 
 
-  // server sends these
-  public static final int  NEW_CON_MESG_REPLY   = 4;                     // mainly
-                                                                          // negotiation
-                                                                          // of
-                                                                          // number
-                                                                          // of
-                                                                          // sockets
-                                                                          // in
-                                                                          // multipath,
-                                                                          // which
-                                                                          // is
-                                                                          // currently
-                                                                          // not
-                                                                          // here
-                                                                          // much
-  public static final int  ADD_SOCKET_REPLY     = 5;                     // Add
-                                                                          // one
-                                                                          // more
-                                                                          // socket
-                                                                          // to
-                                                                          // this
-                                                                          // flow,
-                                                                          // each
-                                                                          // socket
-                                                                          // is
-                                                                          // identfied
-                                                                          // by
-                                                                          // a
-                                                                          // socket
-                                                                          // id
-                                                                          // same
-                                                                          // at
-                                                                          // both
-                                                                          // client
-                                                                          // and
-                                                                          // server
-  public static final int  MIGRATE_SOCKET_REPLY = 6;                     // migrates
-                                                                          // socket
-                                                                          // with
-                                                                          // mentioned
-                                                                          // flowID,
-                                                                          // replaces
-                                                                          // old
-                                                                          // socket
-                                                                          // in
-                                                                          // MSocket
-                                                                          // with
-                                                                          // newly
-                                                                          // accepted
-                                                                          // socket
+	// SERVER SENDS THESE
+	
+	// Mainly negotiation of number of sockets in multipath, which is currently not here much
+	public static final int  NEW_CON_MESG_REPLY   = 4;                     
+	
+	
+    // Adds one more socket to this flow, each socket is identified by a socket id same
+    // at both client and server
+	public static final int  ADD_SOCKET_REPLY     = 5;                     
+	
+	
+    // Migrates socket with mentioned flowID, replaces old socket in MSocket with newly
+    // accepted socket
+	public static final int  MIGRATE_SOCKET_REPLY = 6;                     
+	
+	// control socket that server open with proxy
+	public static final int  CONTROL_SOCKET       = 7;
+	
+	// reply
+	public static final int  CONTROL_SOCKET_REPLY = 8;                     
+	
+  
+	public static final int  NEW_CON_REQ          = 9;                     
 
-  public static final int  CONTROL_SOCKET       = 7;                     // control
-                                                                          // socket
-                                                                          // that
-                                                                          // server
-                                                                          // open
-                                                                          // with
-                                                                          // proxy
-  public static final int  CONTROL_SOCKET_REPLY = 8;                     // reply
+	
+	public static final int  MIGRATE_SOCKET_REQ   = 10;
+	
+	public static final int  ADD_SOCKET_REQ       = 11;
+	
+	
+	// Keep alive message on controller channel to server
+	public static final int  KEEP_ALIVE           = 12;                    
 
-  public static final int  NEW_CON_REQ          = 9;                     // control
-                                                                          // socket
-                                                                          // that
-                                                                          // server
-                                                                          // open
-                                                                          // with
-                                                                          // proxy
-
-  public static final int  MIGRATE_SOCKET_REQ   = 10;
-  public static final int  ADD_SOCKET_REQ       = 11;
-  public static final int  KEEP_ALIVE           = 12;                    // keep
-                                                                          // alive
-                                                                          // message
-                                                                          // on
-                                                                          // conroller
-                                                                          // channel
-                                                                          // to
-                                                                          // server
-
-  public static final int  MIGRATE_SOCKET_RESET = 13;
+	public static final int  MIGRATE_SOCKET_RESET = 13;
   
 
-  public static final int  SIZE_OF_GUID         = 20;                     // 20
-                                                                          // bytes
-                                                                          // is
-                                                                          // the
-                                                                          // size
-                                                                          // of
-                                                                          // GUID, right coversion requires 1 more byte, from 20 to 20
+	// 20 bytes is the size of GUID, right coversion requires 1 more byte, from 20 to 20
+	public static final int  SIZE_OF_GUID         = 20;                     
 
-  public static final int  SIZE                 = ControlMessage.INET_ADDR_SIZE + (Integer.SIZE * 5 + Long.SIZE) / 8
+	
+	public static final int  SIZE                 = ControlMessage.INET_ADDR_SIZE + (Integer.SIZE * 5 + Long.SIZE) / 8
                                                     + SIZE_OF_GUID;
 
-  public final InetAddress iaddr;                                        // src
-                                                                          // ip
-  public final int         port;                                         // udp
-                                                                          // controller
-                                                                          // port
-  public final long        connID;
-  public final int         ackSeq;
-  public final int         mesgType;
-  public final int         socketID;
-
-  public final int         proxyID;                                      // ID
-                                                                          // of
-                                                                          // the
-                                                                          // connection
-                                                                          // at
-                                                                          // proxy,
-                                                                          // generated
-                                                                          // by
-                                                                          // proxy
-
-  public final byte[]      GUID                 = new byte[SIZE_OF_GUID];
-
-  public SetupControlMessage(InetAddress ia, int p, long connid, 
-		  int as, int mstype, int socketid,
-      int proxyid, byte[] guid)
-  {
-    this.iaddr = ia;
-    this.port = p;
-    this.connID = connid;
-    this.ackSeq = as;
-    this.mesgType = mstype;
-    this.socketID = socketid;
+  
+	// src ip
+	public final InetAddress iaddr;                                        
+	
+	// udp controller port
+	public final int         port;                                         
+	
+	public final long        connID;
+	public final int         ackSeq;
+	public final int         mesgType;
+	
+	
+    public final int         socketID;
     
-    this.proxyID = proxyid;
-    System.arraycopy(guid, 0, this.GUID, 0, SIZE_OF_GUID);
-  }
+    // ID of the connection at proxy, generated by proxy.
+    public final int         proxyID;                                      
+    
+    public final long inputBufferSize;
 
-  public byte[] getBytes() throws UnknownHostException
-  {
-    ByteBuffer buf = ByteBuffer.allocate(SetupControlMessage.SIZE);
-    buf.put(this.iaddr.getAddress());
-    buf.putInt(this.port);
-    buf.putLong(this.connID);
-    buf.putInt(this.ackSeq);
-    buf.putInt(this.mesgType);
-    buf.putInt(this.socketID);
-    buf.putInt(this.proxyID);
-    buf.put(this.GUID, 0, SIZE_OF_GUID);
-    buf.flip();
-    return buf.array();
-  }
+    public final byte[]      GUID                 = new byte[SIZE_OF_GUID];
 
-  public static SetupControlMessage getSetupControlMessage(byte[] b) throws UnknownHostException
-  {
-    if (b == null)
-      return null;
-    ByteBuffer buf = ByteBuffer.wrap(b);
-    byte[] ia = new byte[ControlMessage.INET_ADDR_SIZE];
-    buf.get(ia);
-    int port = buf.getInt();
-    long connID = buf.getLong();
-    int ackSeq = buf.getInt();
-    int mesgType = buf.getInt();
-    int socketId = buf.getInt();
-    int proxyId = buf.getInt();
-    byte[] GUID = new byte[SIZE_OF_GUID];
-    buf.get(GUID);
+    public SetupControlMessage(InetAddress ia, int p, long connid, 
+    		int as, int mstype, int socketid, int proxyid, byte[] guid, long inputBufferSize)
+    {
+    	this.iaddr = ia;
+    	this.port = p;
+    	this.connID = connid;
+    	this.ackSeq = as;
+    	this.mesgType = mstype;
+    	this.socketID = socketid;
+    	this.proxyID = proxyid;
+    	// In bytes
+    	this.inputBufferSize = inputBufferSize;
+    	System.arraycopy(guid, 0, this.GUID, 0, SIZE_OF_GUID);
+    }
 
-    SetupControlMessage cm = new SetupControlMessage(InetAddress.getByAddress(ia), port, 
-    		connID, ackSeq, mesgType,
-       socketId, proxyId, GUID);
-    return cm;
-  }
+    public byte[] getBytes() throws UnknownHostException
+    {
+    	ByteBuffer buf = ByteBuffer.allocate(SetupControlMessage.SIZE);
+    	buf.put(this.iaddr.getAddress());
+    	buf.putInt(this.port);
+    	buf.putLong(this.connID);
+    	buf.putInt(this.ackSeq);
+    	buf.putInt(this.mesgType);
+    	buf.putInt(this.socketID);
+    	buf.putInt(this.proxyID);
+    	buf.putLong(this.inputBufferSize);    	
+    	buf.put(this.GUID, 0, SIZE_OF_GUID);
+    	buf.flip();
+    	return buf.array();
+    }
+
+    public static SetupControlMessage getSetupControlMessage(byte[] b) throws UnknownHostException
+    {
+	    if (b == null)
+	      return null;
+	    ByteBuffer buf = ByteBuffer.wrap(b);
+	    byte[] ia = new byte[ControlMessage.INET_ADDR_SIZE];
+	    buf.get(ia);
+	    int port = buf.getInt();
+	    long connID = buf.getLong();
+	    int ackSeq = buf.getInt();
+	    int mesgType = buf.getInt();
+	    int socketId = buf.getInt();
+	    int proxyId = buf.getInt();
+	    long inputBufferSize = buf.getLong();
+	    byte[] GUID = new byte[SIZE_OF_GUID];
+	    buf.get(GUID);
+	
+	    SetupControlMessage cm = new SetupControlMessage(InetAddress.getByAddress(ia), port, 
+	    		connID, ackSeq, mesgType, socketId, proxyId, GUID, inputBufferSize);
+	    return cm;
+    }
 
   public String toString()
   {
@@ -323,54 +238,52 @@ public class SetupControlMessage
    * @throws IOException
    */
   public static void setupControlWrite
-  		(InetAddress ControllerAddress, long lfid, int mstype, int ControllerPort,
-	      SocketChannel SCToUse, int SocketId, int ProxyId, byte[] GUID, 
-	      long connectTime, ConnectionInfo cinfo) 
-	    		  throws IOException
+  		(InetAddress controllerAddress, long lfid, int mstype, int controllerPort,
+	      SocketChannel scToUse, int socketId, int proxyId, byte[] guid, 
+	      long connectTime, ConnectionInfo cinfo, long inputBufferSize) throws IOException
   {
-	  int DataAckSeq = 0;
+	  int dataAckSeq = 0;
 	  if (cinfo != null)
 	  {
-		  {
-			  DataAckSeq = cinfo.getDataAckSeq();
-	      }
+		  dataAckSeq = cinfo.getDataAckSeq();
 	  }
 	  
 	  if (mstype == SetupControlMessage.NEW_CON_MESG || 
 			  mstype == SetupControlMessage.ADD_SOCKET)
 	  {
-		  DataAckSeq = (int) connectTime;
-		  MSocketLogger.getLogger().fine("Connect time " + DataAckSeq);
+		  // FIXME: Not sure why overloading like this.
+		  dataAckSeq = (int) connectTime;
+		  MSocketLogger.getLogger().fine("Connect time " + dataAckSeq);
 	  }
-
-	    SetupControlMessage scm = new SetupControlMessage(ControllerAddress, ControllerPort, lfid, DataAckSeq, mstype,
-	        SocketId, ProxyId, GUID);
-	    ByteBuffer buf = ByteBuffer.wrap(scm.getBytes());
-
-	    while (buf.remaining() > 0)
-	    {
-	      SCToUse.write(buf);
-	    }
-
-	    MSocketLogger.getLogger().fine("Sent IP:port " + ControllerPort + "; ackSeq = " + (cinfo != null ? DataAckSeq : 0));
+	  
+	  SetupControlMessage scm = new SetupControlMessage(controllerAddress, controllerPort, lfid, dataAckSeq, 
+			  mstype, socketId, proxyId, guid, inputBufferSize);
+	  ByteBuffer buf = ByteBuffer.wrap(scm.getBytes());
+	  
+	  while (buf.remaining() > 0)
+	  {
+		  scToUse.write(buf);
 	  }
-
+	  MSocketLogger.getLogger().fine("Sent IP:port " + controllerPort + "; ackSeq = " + (cinfo != null ? dataAckSeq : 0));
+  }
+  
   public static void main(String[] args)
   {
-    try
-    {
-      // SetupControlMessage scm = new
-      // SetupControlMessage(InetAddress.getLocalHost(), 2345, 473873211L,
-      // 24567, 1, 1, 1);
-      // byte[] enc = scm.getBytes();
-      // SetupControlMessage dec =
-      // SetupControlMessage.getSetupControlMessage(enc);
-      // MSocketLogger.getLogger().fine(dec);
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-    }
+	  try
+	  {
+		  System.out.println("Total memory available " + Runtime.getRuntime().freeMemory());
+	      // SetupControlMessage scm = new
+	      // SetupControlMessage(InetAddress.getLocalHost(), 2345, 473873211L,
+	      // 24567, 1, 1, 1);
+	      // byte[] enc = scm.getBytes();
+	      // SetupControlMessage dec =
+	      // SetupControlMessage.getSetupControlMessage(enc);
+	      // MSocketLogger.getLogger().fine(dec);
+	  }
+	  catch (Exception e)
+	  {
+		  e.printStackTrace();
+	  }
   }
   
 }

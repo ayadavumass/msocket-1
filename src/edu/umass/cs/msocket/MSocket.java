@@ -73,7 +73,15 @@ public class MSocket extends Socket implements MultipathInterface
    * Keep alive frequency (default is 5 seconds)
    */
   public static final int            KEEP_ALIVE_FREQ           	= 5;
-
+  
+  /**
+   * Default input buffer size. This can be user configured using static methods on MSocket or MServerSocket class.
+   * Input buffer size indicates the size of out-of-order packets we keep, before forcing retransmissions on faster paths. 
+   * The size is in bytes.
+   */
+  private static long inputBufferSize 							= 16*1024*1024; 
+  
+  
   // true if TcpNodelay set, false otherwise
   private boolean              setTcpNoDelay;
   private int                  setSoLinger;
@@ -113,6 +121,9 @@ public class MSocket extends Socket implements MultipathInterface
    */
   private int                 maxFlowPath               = 0;
 
+  // We take minimum of the default input buffer size and the free memory currently available.
+  private long 				  msocketInputBufferSize 	= Long.min(inputBufferSize, Runtime.getRuntime().freeMemory());
+  
   /**
    * Creates an unconnected MSocket.
    */
@@ -354,43 +365,6 @@ public class MSocket extends Socket implements MultipathInterface
   }
   
   /**
-   * Creates a MSocket and connects it to the specified port number at the specified IP address. 
-   * It creates as many flowpaths are there are active interfaces at the device at the time of 
-   * calling.
-   * If the specified host is null it is the equivalent of specifying the address as InetAddress.getByName(null). 
-   * In other words, it is equivalent to specifying an address of the loopback interface.
-   * 
-   * @param address - the IP address.
-   * @param port - the port number.
-   * @throws IOException - if an I/O error occurs when creating the socket.
-   */
-  public MSocket(InetAddress address, int port, MSocketType serverType) throws IOException
-  {
-	/*if(serverType == MSocketType.LEGACY_SERVER)
-	{
-	// open as many as there are interfaces
-    this(address, port, null, 0);
-    
-    Vector<InetAddress> interfaces = CommonMethods.getActiveInterfaceInetAddresses();
-	int numFlowpaths = interfaces.size();
-	
-	for(int i=2; i<=numFlowpaths; i++)
-	{
-		InetSocketAddress localBindAdd = new InetSocketAddress(interfaces.get(i % interfaces.size()), 0);
-		FlowPath fp = addFlowPath(localBindAdd);
-		
-		if(fp == null)
-		{
-			MSocketLogger.getLogger().fine("addFlowPath failed "+localBindAdd);
-		} else
-		{
-			MSocketLogger.getLogger().fine("addFlowPath succeded"+localBindAdd);
-		}
-	}
-	}*/
-  }
-
-  /**
    * Binds the MSocket locally to the specified address
    * 
    * @see java.net.Socket#bind(java.net.SocketAddress)
@@ -496,7 +470,6 @@ public class MSocket extends Socket implements MultipathInterface
 	    int serverPort = ((InetSocketAddress) endpoint).getPort();
 	    int typeOfCon = MSocketConstants.CON_TO_IP;
 	    
-	
 	    MSocketLogger.getLogger().fine("Connected to server at " + socket.getInetAddress() 
 	    	+ ":" + socket.getPort() + " - local port "
 	        + socket.getLocalPort() + " - local IP " 
@@ -990,6 +963,15 @@ public class MSocket extends Socket implements MultipathInterface
     	connectionInfo.setPerformancePreferences(connectionTime, latency, bandwidth);
     }
   }
+  
+  /**
+   * Returns the current msocket input buffer size.
+   * @return
+   */
+  public int getInputBufferSize()
+  {
+	  return this.msocketInputBufferSize;
+  }
 
   /**
    * Gets the multiPath data Write Policy.
@@ -998,7 +980,7 @@ public class MSocket extends Socket implements MultipathInterface
    */
   public MultipathPolicy getMultipathPolicy()
   {
-    return connectionInfo.getMultipathPolicy();
+	  return connectionInfo.getMultipathPolicy();
   }
 
   /**
@@ -1122,7 +1104,17 @@ public class MSocket extends Socket implements MultipathInterface
 	  return this.connectionInfo.getConnID();
   }
   
-	 
+  /**
+   * Sets the input buffer size. The new input buffer size would be applied to 
+   * the newly opened MSockets, and not the existing ones. 
+   * @param size
+   */
+  public static void setInputBufferSize(int size)
+  {
+	  MSocket.inputBufferSize = size;
+  }
+  
+  
   // protected methods
    //
    // private methods
@@ -1184,7 +1176,7 @@ public class MSocket extends Socket implements MultipathInterface
   }
 
   /**
-   * Client writes first, then reads Exchanged int he beginning of connection
+   * Client writes first, then reads exchanged in the beginning of connection
    * for handshaking
    * 
    * @throws Exception

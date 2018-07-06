@@ -6,18 +6,18 @@ import java.util.logging.Logger;
 
 public class MSocketLogger 
 {
-	//private static Logger LOGGER = Logger.getLogger(ContextServiceLogger.class.getName());
 	private static Logger LOGGER = null;
 	static
 	{
-		
 		LOGGER = Logger.getLogger(
 				MSocketLogger.class.getName());
 		ConsoleHandler ch = new ConsoleHandler();
-        ch.setLevel(Level.OFF);
+		// Warnings+ log level messages should be written.
+        ch.setLevel(Level.WARNING);
         LOGGER.addHandler(ch);
-        LOGGER.setLevel(Level.OFF);
-        
+        LOGGER.setLevel(Level.WARNING);
+
+        // TODO: Not sure what this is doing here. May be removing some default logger or something.
         Logger l0 = Logger.getLogger("");
         l0.removeHandler(l0.getHandlers()[0]);
 	}
