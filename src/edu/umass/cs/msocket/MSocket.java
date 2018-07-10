@@ -74,13 +74,6 @@ public class MSocket extends Socket implements MultipathInterface
    */
   public static final int            KEEP_ALIVE_FREQ           	= 5;
   
-  /**
-   * Default input buffer size. This can be user configured using static methods on MSocket or MServerSocket class.
-   * Input buffer size indicates the size of out-of-order packets we keep, before forcing retransmissions on faster paths. 
-   * The size is in bytes.
-   */
-  private static long inputBufferSize 							= 16*1024*1024; 
-  
   
   // true if TcpNodelay set, false otherwise
   private boolean              setTcpNoDelay;
@@ -121,8 +114,7 @@ public class MSocket extends Socket implements MultipathInterface
    */
   private int                 maxFlowPath               = 0;
 
-  // We take minimum of the default input buffer size and the free memory currently available.
-  private long 				  msocketInputBufferSize 	= Long.min(inputBufferSize, Runtime.getRuntime().freeMemory());
+  
   
   /**
    * Creates an unconnected MSocket.
@@ -968,9 +960,9 @@ public class MSocket extends Socket implements MultipathInterface
    * Returns the current msocket input buffer size.
    * @return
    */
-  public int getInputBufferSize()
+  public long getInputBufferSize()
   {
-	  return this.msocketInputBufferSize;
+	  return this.connectionInfo.getInBufferSize();
   }
 
   /**
@@ -1111,7 +1103,7 @@ public class MSocket extends Socket implements MultipathInterface
    */
   public static void setInputBufferSize(int size)
   {
-	  MSocket.inputBufferSize = size;
+	  ConnectionInfo.setDefaultInputBufferSize(size);
   }
   
   
@@ -1225,7 +1217,7 @@ public class MSocket extends Socket implements MultipathInterface
 
     SetupControlMessage.setupControlWrite(controllerIP, localConnID, 
     		SetupControlMessage.NEW_CON_MESG, UDPControllerPort,
-        dataChannel, nextSocketIdentifier, -1, GUID, connectTime, null);
+        dataChannel, nextSocketIdentifier, -1, GUID, connectTime, null, this.getInputBufferSize());
     
     // Read remote port, address, and flowID
     scm = SetupControlMessage.setupControlRead(dataChannel);

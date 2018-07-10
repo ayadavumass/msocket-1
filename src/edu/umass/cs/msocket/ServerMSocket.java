@@ -121,7 +121,7 @@ public class ServerMSocket extends MSocket
         SetupControlMessage.setupControlWrite(serverController.getLocalAddress(), 
         		localConnID, SetupControlMessage.NEW_CON_MESG_REPLY,
             serverController.getLocalPort(), newChannel, scm.socketID, 
-            scm.proxyID, scm.GUID, 0, connectionInfo);
+            scm.proxyID, scm.GUID, 0, connectionInfo, this.getInputBufferSize());
 
         // new flowID is computed as average of both proposals for new
         // connections
@@ -169,7 +169,7 @@ public class ServerMSocket extends MSocket
         		connectionInfo.getConnID(), 
         		SetupControlMessage.ADD_SOCKET_REPLY,
         		serverController.getLocalPort(), 
-        		newChannel, scm.socketID, scm.proxyID, scm.GUID, 0, connectionInfo);
+        		newChannel, scm.socketID, scm.proxyID, scm.GUID, 0, connectionInfo, this.getInputBufferSize());
         // need to set it here
         newChannel.configureBlocking(false);
 
@@ -194,7 +194,7 @@ public class ServerMSocket extends MSocket
           SetupControlMessage.setupControlWrite(serverController.getLocalAddress(), 
         		  scm.connID, SetupControlMessage.MIGRATE_SOCKET_RESET,
               serverController.getLocalPort(), newChannel, 
-              scm.socketID, scm.proxyID, scm.GUID, 0, connectionInfo);
+              scm.socketID, scm.proxyID, scm.GUID, 0, connectionInfo, this.getInputBufferSize());
           isNew = false;
         }
         else
@@ -203,7 +203,7 @@ public class ServerMSocket extends MSocket
           SetupControlMessage.setupControlWrite(serverController.getLocalAddress(), 
         		  scm.connID, SetupControlMessage.MIGRATE_SOCKET_REPLY,
               serverController.getLocalPort(), newChannel, 
-              scm.socketID, scm.proxyID, scm.GUID, 0, connectionInfo);
+              scm.socketID, scm.proxyID, scm.GUID, 0, connectionInfo, this.getInputBufferSize());
 
           setupServerController(scm);
 

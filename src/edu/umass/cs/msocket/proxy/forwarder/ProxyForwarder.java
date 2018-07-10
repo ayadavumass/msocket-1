@@ -41,6 +41,7 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.umass.cs.msocket.ConnectionInfo;
 import edu.umass.cs.msocket.SetupControlMessage;
 import edu.umass.cs.msocket.logger.MSocketLogger;
 
@@ -452,8 +453,9 @@ public class ProxyForwarder
               {
                 MSocketLogger.getLogger().fine("proxy sending keep alive at " + localClock + "remote address "
                     + Obj.getUnderlyingChannel().socket().getRemoteSocketAddress());
+                // FIXME: setting inputBuffer to 0 here. 
                 Obj.setupControlWrite(InetAddress.getLocalHost(), -1, -1, -1, SetupControlMessage.KEEP_ALIVE, -1, -1
-                		, Obj.getByteGUID(), Obj.getUnderlyingChannel());
+                		, Obj.getByteGUID(), Obj.getUnderlyingChannel(), 0);
               }
             }
             catch (IOException e)

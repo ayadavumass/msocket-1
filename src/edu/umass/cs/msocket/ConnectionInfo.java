@@ -63,7 +63,7 @@ public class ConnectionInfo
   private static final int         ACK_SEND_THRESH            = MWrappedOutputStream.WRITE_CHUNK_SIZE * 3;
   
   // num of close flowpaths message it needs to 
-  // recieve before it closes the flowpaths
+  // receive before it closes the flowpaths
   private static final int 		   NUM_CLOSE_FPs			  = 1;
   
   
@@ -233,6 +233,20 @@ public class ConnectionInfo
   
   private final MServerSocketController serverController;
   private final long 					   connID;
+  
+  
+  /**
+   * Default input buffer size. This can be user configured using static methods on MSocket.
+   * Input buffer size indicates the size of out-of-order packets we keep, before forcing retransmissions on faster paths. 
+   * The size is in bytes.
+   */
+  private static long defaultInputBufferSize 							= 16*1024*1024;
+  
+  
+  //We take minimum of the default input buffer size and the free memory currently available.
+  private long 				  msocketInputBufferSize 	= Long.min(defaultInputBufferSize, Runtime.getRuntime().freeMemory());
+  
+ 
   /**
    * Creates a new <code>ConnectionInfo</code> object
    * 
@@ -276,7 +290,23 @@ public class ConnectionInfo
     this.emptyQueueThread = new BackgroundEmptyQueueThread(this);
     new Thread(emptyQueueThread).start();
   }*/
+  
 
+  /**
+   * Sets the default input buffer size. 
+   * @param newInputBufferSize
+   */
+  public static void setDefaultInputBufferSize(long newInputBufferSize)
+  {
+	  // FIXME: Not sure if we need locking here. 
+	  ConnectionInfo.defaultInputBufferSize = newInputBufferSize;
+  }
+  
+  public long getnputBufferSize()
+  {
+	  return this.msocketInputBufferSize;
+  }
+  
   /**
    * return the socket state
    * 
@@ -286,6 +316,7 @@ public class ConnectionInfo
   {
     return this.msocketState;
   }
+  
   
   
 
@@ -1009,14 +1040,14 @@ public class ConnectionInfo
         if (value.getStatus()) // only read active sockets
         {
           int ret = 0;
-          boolean acksend = false;
+          //boolean acksend = false;
           do
           {
             ret = singleSocketRead(value);
             if (ret > 0)
             {
               totalread += ret;
-              acksend = true;
+              //acksend = true;
               value.updateRecvdBytes(ret);
             }
             if (getMSocketState() == MSocketConstants.CLOSED)
@@ -1172,7 +1203,7 @@ public class ConnectionInfo
           if (!dataReadAppBuffer)
           {
             SingleSocketReadReturnInfo retObject = null;
-            boolean acksend = false;
+            // boolean acksend = false;
             do
             {
               long ssrStart = System.currentTimeMillis();
@@ -1186,7 +1217,7 @@ public class ConnectionInfo
             		  MSocketLogger.getLogger().fine("data read from socket id " + value.getSocketIdentifer() + " read " + retObject.numBytesRead);
                 
             	MSocketInstrumenter.updateSocketReads(retObject.numBytesRead, value.getSocketIdentifer());
-                acksend = true;
+                // acksend = true;
                 value.updateRecvdBytes(retObject.numBytesRead);
               }
             }
@@ -1225,7 +1256,7 @@ public class ConnectionInfo
         		MSocketLogger.getLogger().fine("multisocket read in else case.");
         	
             int ret = 0;
-            boolean acksend = false;
+            // boolean acksend = false;
             do
             {
               long ssrStart = System.currentTimeMillis();
@@ -1235,7 +1266,7 @@ public class ConnectionInfo
 
               if (ret > 0)
               {
-                acksend = true;
+                // acksend = true;
                 value.updateRecvdBytes(ret);
                 MSocketInstrumenter.updateSocketReads(ret, value.getSocketIdentifer());
               }
@@ -2051,25 +2082,24 @@ public class ConnectionInfo
    * @throws InterruptedException
    */
   public boolean migrateSocketwithId(InetAddress rebindAddress, int rebindPort, 
-		  int SocketId, int MigrationType)
+		  int socketId, int migrationType)
   {
     synchronized (migrationMonitor)
     {
-      MSocketLogger.getLogger().fine("migrateSocketwithId called with Id " + SocketId);
+      MSocketLogger.getLogger().fine("migrateSocketwithId called with Id " + socketId);
 
-      MigrationTimeOutThread migThread = new MigrationTimeOutThread(this, SocketId);
+      MigrationTimeOutThread migThread = new MigrationTimeOutThread(this, socketId);
       new Thread(migThread).start();
 
       boolean success = true;
       try
       {
-        closeAll(SocketId);
-        FlowPathResult res = addSocketToFlow(getConnID(), SetupControlMessage.MIGRATE_SOCKET, SocketId, rebindAddress,
-            rebindPort, MigrationType);
+        closeAll(socketId);
+        FlowPathResult res = addSocketToFlow(getConnID(), SetupControlMessage.MIGRATE_SOCKET, socketId, rebindAddress,
+            rebindPort, migrationType);
         success = res.getSuccessful();
 
-        MSocketLogger.getLogger().fine("Completed migrateSocketwithId " + SocketId);
-
+        MSocketLogger.getLogger().fine("Completed migrateSocketwithId " + socketId);
       }
       catch (Exception ex)
       {
@@ -2267,7 +2297,7 @@ public class ConnectionInfo
 	            }
 	            else if (MigrationType == MSocketConstants.SERVER_MIG)
 	            {
-	              // TODO: here may be different choce of local interfaces
+	              // TODO: here may be different choice of local interfaces
 	              newChannel = SocketChannel.open();
 	              newSocket = newChannel.socket();
 	              // impt bug resolved: even if connect or setup control blocks
@@ -2506,12 +2536,13 @@ public class ConnectionInfo
 	    DataAckSeq = getDataAckSeq();
 	    if (mstype == SetupControlMessage.NEW_CON_MESG || mstype == SetupControlMessage.ADD_SOCKET)
 	    {
-	      // connect Time overloaded
-	      DataAckSeq = (int) connectTime;
+	    	// FIXME: Not sure why we overloading the value here.
+	    	// connect Time overloaded
+	    	DataAckSeq = (int) connectTime;
 	    }
 
 	    SetupControlMessage scm = new SetupControlMessage(ControllerAddress, ControllerPort, lfid, DataAckSeq, mstype,
-	        SocketId, ProxyId, GUID);
+	        SocketId, ProxyId, GUID, this.msocketInputBufferSize);
 	    ByteBuffer buf = ByteBuffer.wrap(scm.getBytes());
 
 	    while (buf.remaining() > 0)

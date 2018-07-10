@@ -277,24 +277,23 @@ public class ConnectionToProxyServer
     return null;
   }
 
-  private void setupControlWrite(long lfid, int mstype, int ControllerPort, int numOfSockets, SocketChannel SCToUse,
-      int SocketId) throws IOException
+  private void setupControlWrite(long lfid, int mstype, int controllerPort, int numOfSockets, 
+		  SocketChannel scToUse, int socketId, long inputBufferSize) throws IOException
   {
-    byte[] GUID = new byte[SetupControlMessage.SIZE_OF_GUID];
-    GUID = CommonMethods.hexStringToByteArray(serverGuid);
+	  byte[] GUID = new byte[SetupControlMessage.SIZE_OF_GUID];
+	  GUID = CommonMethods.hexStringToByteArray(serverGuid);
     
-    MSocketLogger.getLogger().fine("serverGuid " + serverGuid + " GUID to be sent " + GUID + " length "
-        + CommonMethods.hexStringToByteArray(serverGuid).length+" reverse "+CommonMethods.bytArrayToHex(GUID)+ " num of bytes "+ GUID.length);
+	  MSocketLogger.getLogger().fine("serverGuid " + serverGuid + " GUID to be sent " + GUID + " length " 
+			  + CommonMethods.hexStringToByteArray(serverGuid).length+" reverse "+CommonMethods.bytArrayToHex(GUID)+ " num of bytes "+ GUID.length);
 
-    SetupControlMessage scm = new SetupControlMessage(SCToUse.socket().getLocalAddress(), ControllerPort, lfid, -1,
-        mstype, SocketId, -1, GUID);
-    ByteBuffer buf = ByteBuffer.wrap(scm.getBytes());
+	  SetupControlMessage scm = new SetupControlMessage(scToUse.socket().getLocalAddress(), controllerPort, lfid, -1,
+    		mstype, socketId, -1, GUID, inputBufferSize);
+	  ByteBuffer buf = ByteBuffer.wrap(scm.getBytes());
 
-    while (buf.remaining() > 0)
-    {
-      SCToUse.write(buf);
-    }
-
+	  while (buf.remaining() > 0)
+	  {
+		  scToUse.write(buf);
+	  }
   }
 
   private SetupControlMessage setupControlRead(SocketChannel SCToUse) throws IOException
@@ -318,7 +317,8 @@ public class ConnectionToProxyServer
 
     MSocketLogger.getLogger().fine("Connected to proxy at " + socket.getInetAddress() + ":" + socket.getPort());
 
-    setupControlWrite(-1, SetupControlMessage.CONTROL_SOCKET, -1, -1, proxyChannel, -1);
+    // FIXME: Not sure if inputBufferSize of -1 is right here?
+    setupControlWrite(-1, SetupControlMessage.CONTROL_SOCKET, -1, -1, proxyChannel, -1, -1);
 
     // Read remote port, address, and flowID
     setupControlRead(proxyChannel);
