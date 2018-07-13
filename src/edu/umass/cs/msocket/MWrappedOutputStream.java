@@ -76,7 +76,8 @@ public class MWrappedOutputStream extends OutputStream
 	    	}
 	    	case MULTIPATH_POLICY_ROUNDROBIN:
 	    	{
-	    		MultipathWritingPolicy multipathPolicy = new RoundRobinWritingPolicy(cinfo);
+	    		// MultipathWritingPolicy multipathPolicy = new RoundRobinWritingPolicy(cinfo);
+	    		MultipathWritingPolicy multipathPolicy = new RTTBasedWritingPolicy(cinfo);
 	    		cinfo.setMultipathWritingPolicy(multipathPolicy);
 	    		break;
 	    	}
