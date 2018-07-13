@@ -51,7 +51,7 @@ public class RTTBasedWritingPolicy extends MultipathWritingPolicy
     if(ENABLE_RTX)
     {
     	cinfo.startRetransmissionThread();
-        cinfo.startEmptyQueueThread();
+        //cinfo.startEmptyQueueThread();
     }
   }
 
@@ -209,10 +209,10 @@ public class RTTBasedWritingPolicy extends MultipathWritingPolicy
 	  // MSocketLogger.getLogger().fine(print);
 	  // need to empty the write queues here, can't return
 	  // before that, otherwise it would desynchronize the output stream
-	  if(ENABLE_RTX)
-	  {
-		  cinfo.emptyTheWriteQueues();
-	  }
+	  //if(ENABLE_RTX)
+	  //{
+	//	  cinfo.emptyTheWriteQueues();
+	  //}
   }
 
 protected SocketInfo getNextSocketToWrite() throws IOException {
