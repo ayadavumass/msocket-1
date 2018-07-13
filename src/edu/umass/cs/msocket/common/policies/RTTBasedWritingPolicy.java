@@ -43,11 +43,16 @@ import edu.umass.cs.msocket.logger.MSocketLogger;
  */
 public class RTTBasedWritingPolicy extends MultipathWritingPolicy
 {
+	private static final boolean ENABLE_RTX = true;
+	
   public RTTBasedWritingPolicy(ConnectionInfo cinfo)
   {
     this.cinfo = cinfo;
-    //cinfo.startRetransmissionThread();
-    //cinfo.startEmptyQueueThread();
+    if(ENABLE_RTX)
+    {
+    	cinfo.startRetransmissionThread();
+        cinfo.startEmptyQueueThread();
+    }
   }
 
   @Override
@@ -204,7 +209,10 @@ public class RTTBasedWritingPolicy extends MultipathWritingPolicy
 	  // MSocketLogger.getLogger().fine(print);
 	  // need to empty the write queues here, can't return
 	  // before that, otherwise it would desynchronize the output stream
-	  //cinfo.emptyTheWriteQueues();
+	  if(ENABLE_RTX)
+	  {
+		  cinfo.emptyTheWriteQueues();
+	  }
   }
 
 protected SocketInfo getNextSocketToWrite() throws IOException {
