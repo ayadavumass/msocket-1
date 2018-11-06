@@ -39,13 +39,21 @@ public class SimpleClient
 	    	MSocket ms = new MSocket(InetAddress.getByName(serverIPOrName), serverPort);
 	    	InputStream is = ms.getInputStream();
 
+
 	    	// TODO: Might need to bind it to a specific IP address here.
-	    	// FlowPath path1 = ms.addFlowPath(null);
+	    	FlowPath fpToRemove = null;
 			for(int i=0; i<ms.getActiveFlowPaths().size(); i++)
 	    	{
 	    		FlowPath currfp = ms.getActiveFlowPaths().get(i);
+	    		if (!currfp.getLocalEndpoint().toString().startsWith("10.10")) {
+	    			fpToRemove = currfp;
+	    			continue;
+				}
 	    		System.out.println("Flowpath id="+currfp.getFlowPathId()+" local ip="+currfp.getLocalEndpoint().toString());
 	    	}
+	    	if(fpToRemove != null)
+	    		ms.removeFlowPath(fpToRemove);
+
 	    	byte[] numByteArr = new byte[4];
 			is.read(numByteArr);
 			ByteBuffer wrapped = ByteBuffer.wrap(numByteArr);
