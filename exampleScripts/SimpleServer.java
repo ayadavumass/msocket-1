@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 import edu.umass.cs.msocket.MServerSocket;
@@ -68,7 +69,13 @@ public class SimpleServer
 				System.out.println("Starting to send data.");
 				OutputStream os = msocket.getOutputStream();
 				byte[] b = new byte[1024 * 1024 * 16];
-				int totalBytes = b.length; 	
+				int totalBytes = b.length*numTimes;
+
+				ByteBuffer dbuf = ByteBuffer.allocate(4);
+				dbuf.putInt(totalBytes);
+				byte[] bytes = dbuf.array();
+				os.write(bytes);
+
 				long start = System.currentTimeMillis();
 				while(count < numTimes)
 				{
