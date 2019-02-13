@@ -39,10 +39,12 @@ public class SimpleClient
 	    	MSocket ms = new MSocket(InetAddress.getByName(serverIPOrName), serverPort);
 	    	InputStream is = ms.getInputStream();
 
+
 	    	// TODO: Might need to bind it to a specific IP address here.
 			for(int i=0; i<ms.getActiveFlowPaths().size(); i++)
 	    	{
 	    		FlowPath currfp = ms.getActiveFlowPaths().get(i);
+
 	    		System.out.println("Flowpath id="+currfp.getFlowPathId()+" local ip="+currfp.getLocalEndpoint().toString());
 	    	}
 
@@ -53,7 +55,7 @@ public class SimpleClient
 			System.out.println("[Client:] To read "+numBytesToRead+" bytes data from input stream...");
 
 	    	byte[] b = new byte[1024 * 1024];
-		    int numRead = 0;
+		    int numRead ;
 		    int totalRead = 0;
 		    long start = -1; // System.currentTimeMillis();
 		    do
@@ -65,6 +67,8 @@ public class SimpleClient
 				totalRead += numRead;
 		    	//System.out.println("Received " + numRead + " bytes from server, total read "+totalRead+" bytes.");
 		    } while(totalRead < numBytesToRead);
+
+
 		    long elapsed = System.currentTimeMillis() - start;
 		    System.out.println("[Client:] Closing socket, it takes "+elapsed/1000.0+" seconds to transfer "+totalRead+" bytes. Throughput is "+totalRead/elapsed+"kB/s");
 		    ms.close();
