@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
-import java.util.Random;
 
 public class PingClient {
 
@@ -16,8 +15,7 @@ public class PingClient {
 
     private static final int TOTAL_ROUND = 1000;
 
-    private static final Random rand = new Random();
-
+    private static int numOfBytes = 10*1024;
 
     public static void main(String[] args) {
         String serverIPOrName = null;
@@ -27,15 +25,15 @@ public class PingClient {
             serverIPOrName = LOCALHOST;
         else
             serverIPOrName = args[0];
+
         int serverPort = LOCAL_PORT;
 
-        if (args.length == 1) {
-            serverIPOrName = args[0];
+        if (System.getProperty("total") != null) {
+            numOfBytes = Integer.parseInt(System.getProperty("total"));
         }
 
-        if (args.length == 2) {
-            serverIPOrName = args[0];
-            numRound = Integer.parseInt(args[1]);
+        if (System.getProperty("round") != null) {
+            numRound = Integer.parseInt(System.getProperty("round"));
         }
 
         try {
@@ -61,19 +59,18 @@ public class PingClient {
 
             while (rd < numRound) {
 
-                int numRead = 10 * 1024;
-                System.out.println("[Client:] To read " + numRead + " bytes data from input stream...");
+                int numSent = numOfBytes;
+                System.out.println("[Client:] To read " + numSent + " bytes data from input stream...");
 
 
-                byte[] b = new byte[numRead];
+                byte[] b = new byte[numSent];
 
                 ByteBuffer dbuf = ByteBuffer.allocate(4);
-                dbuf.putInt(numRead);
+                dbuf.putInt(numSent);
                 byte[] bytes = dbuf.array();
 
-
+                int numRead;
                 int totalRead = 0;
-                int cnt = 0;
 
                 long start = System.currentTimeMillis();
 
@@ -82,11 +79,12 @@ public class PingClient {
                     numRead = is.read(b);
                     if (numRead >= 0)
                         totalRead += numRead;
-                    ++cnt;
-                } while (totalRead < numRead && cnt < 100);
+
+                } while (totalRead < numSent);
 
                 long elapsed = System.currentTimeMillis() - start;
                 System.out.println("[Latency:] " + elapsed  + " ms");
+                System.out.println("[Thruput:] " + numOfBytes/1000.0/elapsed + "KB/s");
 
                 rd++;
             }
