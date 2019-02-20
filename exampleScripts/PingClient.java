@@ -6,12 +6,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
 
 public class PingClient {
 
 
     private static final int    LOCAL_PORT = 5454;
     private static final String LOCALHOST  = "127.0.0.1";
+
+    private static DecimalFormat df = new DecimalFormat("0.00##");
 
     private static final int TOTAL_ROUND = 1000;
 
@@ -84,7 +87,7 @@ public class PingClient {
 
                 long elapsed = System.currentTimeMillis() - start;
                 System.out.println("[Latency:] " + elapsed  + " ms");
-                System.out.println("[Thruput:] " + numOfBytes/1000.0/elapsed + "KB/s");
+                System.out.println("[Thruput:] " + df.format(numOfBytes/1000.0/elapsed ) + " KB/s");
 
                 rd++;
             }
