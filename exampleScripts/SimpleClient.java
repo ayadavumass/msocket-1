@@ -3,6 +3,7 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 
 import edu.umass.cs.msocket.FlowPath;
 import edu.umass.cs.msocket.MSocket;
@@ -37,16 +38,24 @@ public class SimpleClient
 	    {
 	    	MSocket ms = new MSocket(InetAddress.getByName(serverIPOrName), serverPort);
 	    	InputStream is = ms.getInputStream();
-	    	
+
+
 	    	// TODO: Might need to bind it to a specific IP address here.
-	    	// FlowPath path1 = ms.addFlowPath(null);
-		for(int i=0; i<ms.getActiveFlowPaths().size(); i++)
+			for(int i=0; i<ms.getActiveFlowPaths().size(); i++)
 	    	{
 	    		FlowPath currfp = ms.getActiveFlowPaths().get(i);
+
 	    		System.out.println("Flowpath id="+currfp.getFlowPathId()+" local ip="+currfp.getLocalEndpoint().toString());
 	    	}
+
+	    	byte[] numByteArr = new byte[4];
+			is.read(numByteArr);
+			ByteBuffer wrapped = ByteBuffer.wrap(numByteArr);
+			int numBytesToRead = wrapped.getInt();
+			System.out.println("[Client:] To read "+numBytesToRead+" bytes data from input stream...");
+
 	    	byte[] b = new byte[1024 * 1024];
-		    int numRead = 0;
+		    int numRead ;
 		    int totalRead = 0;
 		    long start = -1; // System.currentTimeMillis();
 		    do
@@ -54,11 +63,14 @@ public class SimpleClient
 		    	numRead = is.read(b);
 			if (start < 0)
 			    start = System.currentTimeMillis();
-			totalRead += numRead;
+			if( numRead >=0 )
+				totalRead += numRead;
 		    	//System.out.println("Received " + numRead + " bytes from server, total read "+totalRead+" bytes.");
-		    } while(numRead != -1);
+		    } while(totalRead < numBytesToRead);
+
+
 		    long elapsed = System.currentTimeMillis() - start;
-		    System.out.println("Closing socket, it takes "+elapsed/1000.0+" seconds to transfer "+totalRead+" bytes. Throughput is "+totalRead/elapsed+"kB/s");
+		    System.out.println("[Client:] Closing socket, it takes "+elapsed/1000.0+" seconds to transfer "+totalRead+" bytes. Throughput is "+totalRead/elapsed+"kB/s");
 		    ms.close();
 		    System.out.println("Socket closed");
 			MobilityManagerClient.shutdownMobilityManager();
